@@ -16,26 +16,29 @@
 
 package com.ygs.leader_board.core.data
 
+import com.ygs.domain.entity.LeaderBoardType
+import com.ygs.domain.entity.User
+import com.ygs.domain.repository.LeaderBoardRepository
+import com.ygs.leader_board.core.data.remote.LeaderBoardServiceApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import com.ygs.leader_board.core.database.LeaderBoard
-import com.ygs.leader_board.core.database.LeaderBoardDao
 import javax.inject.Inject
 
-interface LeaderBoardRepository {
-    val leaderBoards: Flow<List<String>>
-
-    suspend fun add(name: String)
-}
 
 class DefaultLeaderBoardRepository @Inject constructor(
-    private val leaderBoardDao: LeaderBoardDao
+    private val service: LeaderBoardServiceApi
 ) : LeaderBoardRepository {
-
-    override val leaderBoards: Flow<List<String>> =
-        leaderBoardDao.getLeaderBoards().map { items -> items.map { it.name } }
-
-    override suspend fun add(name: String) {
-        leaderBoardDao.insertLeaderBoard(LeaderBoard(name = name))
+    override fun getLeaderBoard(type: LeaderBoardType): Flow<List<User>> {
+        return service.getLeaderBoard(type).map {
+            it.map { response ->
+                User(
+                    name = response.name,
+                    username = response.username,
+                    score = response.score,
+                    isRaised = response.isRaised
+                )
+            }
+        }
     }
+
 }

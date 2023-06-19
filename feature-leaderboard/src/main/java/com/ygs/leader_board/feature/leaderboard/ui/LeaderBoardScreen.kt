@@ -16,66 +16,97 @@
 
 package com.ygs.leader_board.feature.leaderboard.ui
 
-import com.ygs.leader_board.core.ui.MyApplicationTheme
-import com.ygs.leader_board.feature.leaderboard.ui.LeaderBoardUiState.Success
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ygs.domain.entity.LeaderBoardType
+import com.ygs.domain.entity.User
+import com.ygs.leader_board.core.ui.MyApplicationTheme
+import com.ygs.leader_board.feature.leaderboard.R
+import com.ygs.leader_board.feature.leaderboard.ui.LeaderBoardUiState.Success
+import com.ygs.leader_board.feature.leaderboard.ui.components.AirTabRow
+import com.ygs.leader_board.feature.leaderboard.ui.components.LeaderboardList
+import com.ygs.leader_board.feature.leaderboard.ui.components.TopScoredUsers
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LeaderBoardScreen(modifier: Modifier = Modifier, viewModel: LeaderBoardViewModel = hiltViewModel()) {
+fun LeaderBoardScreen(
+    modifier: Modifier = Modifier,
+    viewModel: LeaderBoardViewModel = hiltViewModel()
+) {
     val items by viewModel.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(key1 = true) {
+        viewModel.onAction(LeaderBoardAction.FetchData)
+    }
     if (items is Success) {
+        val pagerState = rememberPagerState(0)
         LeaderBoardScreen(
-            items = (items as Success).data,
-            onSave = { name -> viewModel.addLeaderBoard(name) },
+            map = (items as Success).data,
+            pagerState = pagerState,
             modifier = modifier
         )
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun LeaderBoardScreen(
-    items: List<String>,
-    onSave: (name: String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier) {
-        var nameLeaderBoard by remember { mutableStateOf("Compose") }
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            TextField(
-                value = nameLeaderBoard,
-                onValueChange = { nameLeaderBoard = it }
-            )
+    map: Map<LeaderBoardType, List<User>>,
+    modifier: Modifier = Modifier,
+    pagerState: PagerState,
+    selectedType: LeaderBoardType = LeaderBoardType.GLOBAL,
 
-            Button(modifier = Modifier.width(96.dp), onClick = { onSave(nameLeaderBoard) }) {
-                Text("Save")
+    ) {
+    val list = map[selectedType] ?: listOf()
+
+    Column(modifier) {
+        Text(
+            stringResource(id = R.string.leaderboard),
+            modifier = Modifier.fillMaxWidth(),
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center
+        )
+        AirTabRow(
+            pagerState = pagerState,
+            modifier = Modifier.padding(top = 21.dp),
+            onClick = {/*in case of update and so on*/ })
+        TopScoredUsers(
+            list.subList(0, 3),
+            modifier = Modifier.fillMaxWidth()
+        )
+        HorizontalPager(
+            pageCount = map.size,
+            state = pagerState
+        ) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(0.5f)
+            ) {
+                LeaderboardList(list = list)
             }
         }
-        items.forEach {
-            Text("Saved item: $it")
-        }
     }
+
 }
+
 
 // Previews
 
@@ -83,14 +114,7 @@ internal fun LeaderBoardScreen(
 @Composable
 private fun DefaultPreview() {
     MyApplicationTheme {
-        LeaderBoardScreen(listOf("Compose", "Room", "Kotlin"), onSave = {})
+
     }
 }
 
-@Preview(showBackground = true, widthDp = 480)
-@Composable
-private fun PortraitPreview() {
-    MyApplicationTheme {
-        LeaderBoardScreen(listOf("Compose", "Room", "Kotlin"), onSave = {})
-    }
-}

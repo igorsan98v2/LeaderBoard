@@ -50,13 +50,14 @@ android {
 }
 
 dependencies {
-    implementation(project(":core-database"))
+    implementation(project(":domain"))
 
     // Arch Components
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.serialization.json)
 
     // Local tests: jUnit, coroutines, Android runner
     testImplementation(libs.junit)

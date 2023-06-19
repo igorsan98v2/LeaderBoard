@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="no_users_placed_so_far">This place available</string>
+    <string name="no_users_placed_so_far_1">you could a first</string>
+    <string name="leaderboard">Leaderboard</string>
+    <string name="region">Region</string>
+    <string name="national">National</string>
+    <string name="global">Global</string>
+</resources>

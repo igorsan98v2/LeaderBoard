@@ -56,6 +56,7 @@ android {
 
 dependencies {
     implementation(project(":core-data"))
+    implementation(project(":domain"))
     implementation(project(":core-ui"))
     androidTestImplementation(project(":core-testing"))
 
@@ -67,11 +68,14 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.foundation)
 
     // Compose
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation (libs.androidx.constraintlayout.compose)
+
     // Tooling
     debugImplementation(libs.androidx.compose.ui.tooling)
     // Instrumented tests

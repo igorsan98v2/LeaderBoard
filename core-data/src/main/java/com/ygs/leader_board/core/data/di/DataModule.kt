@@ -16,14 +16,19 @@
 
 package com.ygs.leader_board.core.data.di
 
+import android.content.Context
+import com.ygs.domain.entity.LeaderBoardType
+import com.ygs.domain.entity.User
+import com.ygs.domain.repository.LeaderBoardRepository
+import com.ygs.leader_board.core.data.DefaultLeaderBoardRepository
+import com.ygs.leader_board.core.data.remote.FakeLeaderBoardServiceApi
+import com.ygs.leader_board.core.data.remote.LeaderBoardServiceApi
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import com.ygs.leader_board.core.data.LeaderBoardRepository
-import com.ygs.leader_board.core.data.DefaultLeaderBoardRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,17 +38,25 @@ interface DataModule {
 
     @Singleton
     @Binds
+    fun provideLeaderBoardServiceApi(
+        serviceAPI: FakeLeaderBoardServiceApi
+    ): LeaderBoardServiceApi
+
+    @Singleton
+    @Binds
     fun bindsLeaderBoardRepository(
         leaderBoardRepository: DefaultLeaderBoardRepository
     ): LeaderBoardRepository
+
+
 }
 
 class FakeLeaderBoardRepository @Inject constructor() : LeaderBoardRepository {
-    override val leaderBoards: Flow<List<String>> = flowOf(fakeLeaderBoards)
-
-    override suspend fun add(name: String) {
-        throw NotImplementedError()
+    override fun getLeaderBoard(type: LeaderBoardType): Flow<List<User>> {
+        return flowOf(fakeLeaderBoards)
     }
+
 }
 
-val fakeLeaderBoards = listOf("One", "Two", "Three")
+val fakeLeaderBoards =
+    listOf(User(name = "test", username = "somekind", score = 44, isRaised = true))

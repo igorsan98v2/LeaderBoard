@@ -18,17 +18,17 @@ package com.ygs.leader_board.feature.leaderboard.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
-import com.ygs.leader_board.core.data.LeaderBoardRepository
+import com.ygs.domain.entity.LeaderBoardType
+import com.ygs.domain.entity.User
+import com.ygs.domain.repository.LeaderBoardRepository
 import com.ygs.leader_board.feature.leaderboard.ui.LeaderBoardUiState.Error
 import com.ygs.leader_board.feature.leaderboard.ui.LeaderBoardUiState.Loading
 import com.ygs.leader_board.feature.leaderboard.ui.LeaderBoardUiState.Success
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,20 +36,41 @@ class LeaderBoardViewModel @Inject constructor(
     private val leaderBoardRepository: LeaderBoardRepository
 ) : ViewModel() {
 
-    val uiState: StateFlow<LeaderBoardUiState> = leaderBoardRepository
-        .leaderBoards.map<List<String>, LeaderBoardUiState> { Success(data = it) }
-        .catch { emit(Error(it)) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Loading)
+    private val _uiState: MutableStateFlow<LeaderBoardUiState> =
+        MutableStateFlow(Loading(LeaderBoardType.GLOBAL))
 
-    fun addLeaderBoard(name: String) {
-        viewModelScope.launch {
-            leaderBoardRepository.add(name)
+    val uiState: StateFlow<LeaderBoardUiState> = _uiState
+
+    fun onAction(action: LeaderBoardAction) {
+        when (action) {
+            LeaderBoardAction.FetchData -> viewModelScope.launch { fetchLeaderBoards() }
         }
     }
+
+    private suspend fun fetchLeaderBoards() {
+        val map: MutableMap<LeaderBoardType, List<User>> = mutableMapOf()
+        LeaderBoardType.values().forEach { type ->
+
+            leaderBoardRepository.getLeaderBoard(type)
+                .catch { error -> _uiState.value = Error(error) }
+                .collect { list ->
+                    map[type] = list
+                    _uiState.value = Success(map)
+                }
+
+        }
+    }
+
 }
 
+
 sealed interface LeaderBoardUiState {
-    object Loading : LeaderBoardUiState
+
+    data class Loading(val type: LeaderBoardType) : LeaderBoardUiState
     data class Error(val throwable: Throwable) : LeaderBoardUiState
-    data class Success(val data: List<String>) : LeaderBoardUiState
+    data class Success(val data: Map<LeaderBoardType, List<User>>) : LeaderBoardUiState
+}
+
+sealed interface LeaderBoardAction {
+    object FetchData : LeaderBoardAction
 }
