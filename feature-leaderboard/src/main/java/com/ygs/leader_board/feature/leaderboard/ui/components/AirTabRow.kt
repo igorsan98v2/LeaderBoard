@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
@@ -56,8 +57,9 @@ fun AirTabRow(pagerState: PagerState, modifier: Modifier, onClick: (LeaderBoardT
     ) {
         list.forEachIndexed { index, item ->
             Tab(
+                modifier = Modifier.background(MaterialTheme.colorScheme.secondaryContainer),
                 selected = index == pagerState.currentPage,
-                text = { Text(text = stringResource(id = item.first)) },
+                text = { Text(text = stringResource(id = item.first), color = MaterialTheme.colorScheme.onBackground) },
                 onClick = {
                     coroutineScope.launch { pagerState.animateScrollToPage(index) }
                     onClick(list[index].second)

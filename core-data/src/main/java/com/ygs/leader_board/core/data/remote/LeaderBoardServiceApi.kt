@@ -38,4 +38,4 @@ class FakeLeaderBoardServiceApi @Inject constructor(@ApplicationContext private 
 
 private const val GLOBAL_RATE_FILE = "global.json"
 private const val NATIONAL_RATE_FILE = "national.json"
-private const val REGIONAL_RATING_FILE = "region.json"
+private const val REGIONAL_RATING_FILE = "regional.json"
