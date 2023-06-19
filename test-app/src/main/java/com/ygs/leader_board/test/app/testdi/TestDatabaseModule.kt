@@ -16,11 +16,11 @@
 
 package com.ygs.leader_board.test.app.testdi
 
+import com.ygs.domain.repository.LeaderBoardRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
-import com.ygs.leader_board.core.data.LeaderBoardRepository
 import com.ygs.leader_board.core.data.di.DataModule
 import com.ygs.leader_board.core.data.di.FakeLeaderBoardRepository
 
