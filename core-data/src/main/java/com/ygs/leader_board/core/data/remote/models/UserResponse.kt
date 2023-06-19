@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UserResponse(
     val name: String,
-    val username: String,
+    val nickname: String,
     val score: Int,
     val isRaised: Boolean
 )

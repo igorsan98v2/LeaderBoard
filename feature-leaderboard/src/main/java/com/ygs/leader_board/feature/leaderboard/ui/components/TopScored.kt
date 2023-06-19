@@ -1,5 +1,6 @@
 package com.ygs.leader_board.feature.leaderboard.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -30,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
+import androidx.constraintlayout.compose.Dimension
 import com.ygs.domain.entity.User
 import com.ygs.leader_board.core.ui.FirstPlace
 import com.ygs.leader_board.core.ui.SecondPlace
@@ -51,24 +54,26 @@ fun TopScoredUsers(users: List<User>, modifier: Modifier = Modifier) {
                     .size(34.dp)
                     .layoutId(MARK_ID)
             ) {
-                Icon(
+                Image(
                     painterResource(id = R.drawable.ic_top_placed),
                     "",
                     modifier = Modifier
                         .size(width = 27.dp, height = 34.dp)
+                        .border(0.dp, Color.Transparent)
                         .align(Alignment.CenterEnd)
                 )
             }
             Icon(
-                painterResource(id = androidx.core.R.drawable.notification_icon_background),
+                painterResource(id = R.drawable.person_48px),
                 "",
                 modifier = Modifier
                     .size(82.dp)
+                    .border(0.dp, Color.Transparent)
                     .border(4.dp, FirstPlace, CircleShape)
                     .layoutId(FIRST_PLACE_ID)
             )
             Icon(
-                painterResource(id = androidx.core.R.drawable.notification_icon_background),
+                painterResource(id = R.drawable.person_48px),
                 "",
                 modifier = Modifier
                     .size(82.dp)
@@ -76,7 +81,7 @@ fun TopScoredUsers(users: List<User>, modifier: Modifier = Modifier) {
                     .layoutId(SECOND_PLACE_ID)
             )
             Icon(
-                painterResource(id = androidx.core.R.drawable.notification_icon_background),
+                painterResource(id = R.drawable.person_48px),
                 "",
                 modifier = Modifier
                     .size(82.dp)
@@ -85,7 +90,8 @@ fun TopScoredUsers(users: List<User>, modifier: Modifier = Modifier) {
             )
             Pedestal(
                 Modifier
-                    .size(160.dp)
+                    .fillMaxWidth()
+                    .height(160.dp)
                     .layoutId(PEDESTAL_ID),
                 users = users
             )
@@ -104,25 +110,29 @@ private val decoupledConstraints =
         //or use translation x/y instead
         constrain(mark) {
             top.linkTo(parent.top, margin = 21.dp)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+
         }
         constrain(firstPlaceIcon) {
             top.linkTo(parent.top, margin = 49.dp)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
             translationZ = 1.dp
         }
         constrain(firstPlaceColumn) {
             top.linkTo(parent.top, margin = 98.dp)
+            width = Dimension.matchParent
             translationZ = 0.dp
         }
         constrain(secondPlaceImage) {
             top.linkTo(parent.top, margin = 90.dp)
             start.linkTo(parent.start, margin = 24.dp)
-            end.linkTo(firstPlaceColumn.start)
             translationZ = 1.dp
         }
         constrain(thirdPlaceIcon) {
             top.linkTo(parent.top, margin = 90.dp)
-            start.linkTo(parent.end, margin = 24.dp)
-            end.linkTo(firstPlaceColumn.end)
+            end.linkTo(parent.end, margin = 24.dp)
             translationZ = 1.dp
         }
 
@@ -134,6 +144,7 @@ fun Pedestal(modifier: Modifier, users: List<User>) {
         Column(
             Modifier
                 .height(160.dp)
+                .width(122.dp)
                 .align(Alignment.Center)
                 .clip(RoundedCornerShape(30.dp, 30.dp, 0.dp, 0.dp))
                 .background(MaterialTheme.colorScheme.secondary)
@@ -148,26 +159,32 @@ fun Pedestal(modifier: Modifier, users: List<User>) {
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
                 .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.tertiary)
                 .zIndex(2.5f),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row {
                 Spacer(Modifier.size(28.dp))
-                PedestalText(
-                    users.getOrNull(1),
-                    highScoreColor = SecondPlace,
-                    topTextPaddingTop = 29.dp,
-                    lastTextPaddingTop = 9.dp
-                )
+                Column {
+                    PedestalText(
+                        users.getOrNull(1),
+                        highScoreColor = SecondPlace,
+                        topTextPaddingTop = 29.dp,
+                        lastTextPaddingTop = 9.dp
+                    )
+                }
             }
             Row {
-                PedestalText(
-                    users.getOrNull(2),
-                    highScoreColor = ThirdPlace,
-                    topTextPaddingTop = 30.dp,
-                    lastTextPaddingTop = 6.dp
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    PedestalText(
+                        users.getOrNull(2),
+                        highScoreColor = ThirdPlace,
+                        topTextPaddingTop = 30.dp,
+                        lastTextPaddingTop = 6.dp
+                    )
+                }
                 Spacer(Modifier.size(28.dp))
+
             }
         }
     }
@@ -194,7 +211,7 @@ fun PedestalText(
         color = highScoreColor
     )
     Text(
-        "${user?.score ?: stringResource(id = R.string.no_users_placed_so_far_1)}",
+        user?.username ?: stringResource(id = R.string.no_users_placed_so_far_1),
         style = MaterialTheme.typography.titleSmall,
         fontWeight = FontWeight.Light,
         modifier = Modifier.padding(top = lastTextPaddingTop)

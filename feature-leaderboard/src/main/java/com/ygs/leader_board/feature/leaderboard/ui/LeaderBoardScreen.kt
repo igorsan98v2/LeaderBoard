@@ -17,19 +17,26 @@
 package com.ygs.leader_board.feature.leaderboard.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,17 +58,30 @@ fun LeaderBoardScreen(
     modifier: Modifier = Modifier,
     viewModel: LeaderBoardViewModel = hiltViewModel()
 ) {
-    val items by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(key1 = true) {
         viewModel.onAction(LeaderBoardAction.FetchData)
     }
-    if (items is Success) {
-        val pagerState = rememberPagerState(0)
-        LeaderBoardScreen(
-            map = (items as Success).data,
-            pagerState = pagerState,
-            modifier = modifier
+
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    when (state) {
+        is LeaderBoardUiState.Error -> Text(
+            (state as LeaderBoardUiState.Error).throwable.message ?: ""
         )
+
+        is LeaderBoardUiState.Loading -> {
+            Box(Modifier.fillMaxSize()) {
+                CircularProgressIndicator(Modifier.align(Alignment.Center))
+            }
+        }
+
+        is Success -> {
+            val pagerState = rememberPagerState(0)
+            LeaderBoardScreen(
+                map = (state as Success).data,
+                pagerState = pagerState,
+                modifier = modifier
+            )
+        }
     }
 }
 
@@ -85,23 +105,23 @@ internal fun LeaderBoardScreen(
         )
         AirTabRow(
             pagerState = pagerState,
-            modifier = Modifier.padding(top = 21.dp),
+            modifier = Modifier
+                .padding(top = 21.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.secondaryContainer),
             onClick = {/*in case of update and so on*/ })
         TopScoredUsers(
-            list.subList(0, 3),
+            list,
             modifier = Modifier.fillMaxWidth()
         )
         HorizontalPager(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 28.dp),
             pageCount = map.size,
             state = pagerState
         ) {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .weight(0.5f)
-            ) {
-                LeaderboardList(list = list)
-            }
+            LeaderboardList(list = list)
         }
     }
 

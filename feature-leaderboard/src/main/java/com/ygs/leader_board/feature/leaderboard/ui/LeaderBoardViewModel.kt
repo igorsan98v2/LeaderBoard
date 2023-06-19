@@ -39,7 +39,7 @@ class LeaderBoardViewModel @Inject constructor(
     private val _uiState: MutableStateFlow<LeaderBoardUiState> =
         MutableStateFlow(Loading(LeaderBoardType.GLOBAL))
 
-    val uiState: StateFlow<LeaderBoardUiState> = _uiState
+    val uiState: StateFlow<LeaderBoardUiState> get() = _uiState
 
     fun onAction(action: LeaderBoardAction) {
         when (action) {
@@ -50,12 +50,11 @@ class LeaderBoardViewModel @Inject constructor(
     private suspend fun fetchLeaderBoards() {
         val map: MutableMap<LeaderBoardType, List<User>> = mutableMapOf()
         LeaderBoardType.values().forEach { type ->
-
             leaderBoardRepository.getLeaderBoard(type)
                 .catch { error -> _uiState.value = Error(error) }
                 .collect { list ->
                     map[type] = list
-                    _uiState.value = Success(map)
+                    _uiState.value = Success(map.toMutableMap())
                 }
 
         }

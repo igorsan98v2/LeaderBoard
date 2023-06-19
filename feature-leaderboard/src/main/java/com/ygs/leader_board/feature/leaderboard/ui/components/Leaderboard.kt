@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ygs.domain.entity.User
+import com.ygs.leader_board.feature.leaderboard.R
 
 @Composable
 fun LeaderboardList(list: List<User>) {
@@ -40,7 +41,7 @@ fun LeaderboardList(list: List<User>) {
                     bottomStart = 0.dp
                 )
             )
-            .background(MaterialTheme.colorScheme.primary),
+            .background(MaterialTheme.colorScheme.tertiary),
         contentPadding = PaddingValues(start = 25.dp, end = 25.dp)
     ) {
         item {
@@ -66,7 +67,7 @@ fun LeaderboardItem(user: User, isLast: Boolean) {
                     modifier = Modifier
                         .size(50.dp)
                         .clip(CircleShape),
-                    painter = painterResource(id = androidx.core.R.drawable.notification_template_icon_bg),
+                    painter = painterResource(id = R.drawable.person_48px),
                     contentDescription = "avatar"
                 )
                 Spacer(Modifier.size(23.dp))
@@ -87,7 +88,7 @@ fun LeaderboardItem(user: User, isLast: Boolean) {
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.size(6.dp))
-                Icon(
+                Image(
                     painterResource(
                         id = if (user.isRaised) com.ygs.leader_board.core.ui.R.drawable.ic_positive_trend
                         else com.ygs.leader_board.core.ui.R.drawable.ic_negative_trend,
@@ -97,13 +98,14 @@ fun LeaderboardItem(user: User, isLast: Boolean) {
                 )
 
             }
-            if (!isLast) {
-                Divider(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(top = 15.dp)
-                )
-            }
+
+        }
+        if (!isLast) {
+            Divider(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 15.dp)
+            )
         }
     }
 }

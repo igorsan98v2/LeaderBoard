@@ -31,7 +31,7 @@ class FakeLeaderBoardServiceApi @Inject constructor(@ApplicationContext private 
                     jsonString = it.readText()
                 }
             delay(150)
-            emit(Json.decodeFromString<List<UserResponse>>(jsonString).sortedBy { it.score })
+            emit(Json.decodeFromString<List<UserResponse>>(jsonString).sortedByDescending { it.score })
         }
 
 }

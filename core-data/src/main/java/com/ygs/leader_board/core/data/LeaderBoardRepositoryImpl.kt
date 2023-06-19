@@ -33,7 +33,7 @@ class DefaultLeaderBoardRepository @Inject constructor(
             it.map { response ->
                 User(
                     name = response.name,
-                    username = response.username,
+                    username = response.nickname,
                     score = response.score,
                     isRaised = response.isRaised
                 )
